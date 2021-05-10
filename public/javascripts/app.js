@@ -30,7 +30,7 @@ const handleSubmit = (files, history, setUploading) => {
       };
     })(img);
     reader.readAsDataURL(file);
-    //Uploade
+    //Upload
     const data = new FormData();
     data.append("file", file, file.name);
     fetch("/uploads", {
@@ -62,10 +62,10 @@ const drop = (e, history, setUploading) => {
 
 const Alert = (msg) => {
   const popup = document.createElement("span");
-  const conteiner = document.querySelector(".container");
+  const container = document.querySelector(".container");
   popup.classList.add("popup");
   popup.innerText = msg;
-  conteiner.appendChild(popup);
+  container.appendChild(popup);
   setTimeout(() => {
     popup.remove();
   }, 5000);
@@ -78,6 +78,10 @@ const copyLink = () => {
   document.execCommand("copy");
   Alert("copied ✅");
 };
+
+/**
+ * components
+ */
 
 const Uploader = () => {
   const [uploading, setUploading] = React.useState(false);

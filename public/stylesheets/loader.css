@@ -2,6 +2,8 @@
   display: inline-block;
   position: absolute;
   top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
   width: 80px;
   height: 80px;
 }
