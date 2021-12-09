@@ -1,39 +1,46 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&family=Poppins:wght@500&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&family=Poppins:wght@500&display=swap');
 
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 500;
 }
 
 body {
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 14px 'Lucida Grande', Helvetica, Arial, sans-serif;
 }
 
 .popup {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: absolute;
   min-width: 120px;
-  padding: 8px 15px;
+  padding: 12px 18px;
   background-color: #eff5fd;
   border-radius: 8px;
   z-index: 9999;
   left: 50%;
+  font-size: 14px;
   color: #4f4f4f;
   opacity: 0.8;
-  bottom: 50px;
+  top: 30px;
   transform: translateX(-50%);
   animation: popup 0.1s linear;
 }
+.popup svg{
+  margin-right: 4px;
+}
+
 @keyframes popup {
   from {
-    bottom: 40px;
+    top: 0px;
     opacity: 0;
   }
   to {
-    bottom: 50px;
+    top: 50px;
     opacity: 0.8;
   }
 }
@@ -75,7 +82,7 @@ body {
 
 .btn {
   font-size: 12px;
-  font-family: "Noto Sans", sans-serif;
+  font-family: 'Noto Sans', sans-serif;
   text-align: center;
   color: #fff;
   padding: 8px 12px;
@@ -124,7 +131,7 @@ body {
   width: 95%;
   max-width: 338px;
   height: 218.9px;
-  background-image: url("/images/image.svg");
+  background-image: url('/images/image.svg');
   background-repeat: no-repeat;
   background-position: 50% 30%;
   background-color: #f6f8fb;
@@ -146,7 +153,7 @@ body {
 }
 
 .dropbox::after {
-  content: "Drag & Drop your image here";
+  content: 'Drag & Drop your image here';
   position: absolute;
   width: 100%;
   text-align: center;
@@ -179,6 +186,10 @@ body {
   background-color: #2f80ed;
   border-radius: 4px;
   animation: loader 2s linear infinite;
+}
+
+.hidden {
+  display: none;
 }
 
 @keyframes loader {

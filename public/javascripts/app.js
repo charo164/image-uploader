@@ -1,27 +1,41 @@
-const Router = ReactRouterDOM.BrowserRouter;
-const Switch = ReactRouterDOM.Switch;
-const Route = ReactRouterDOM.Route;
-const useHistory = ReactRouterDOM.useHistory;
-const useParams = ReactRouterDOM.useParams;
-const useLocation = ReactRouterDOM.useLocation;
-const Link = ReactRouterDOM.Link;
+const input = document.querySelector('#uploaderInput');
+const loaderContainer = document.querySelector('.loaderContainer');
+const dropbox = document.querySelector('.dropbox');
+const copy = document.querySelector('#copy');
+const image = document.querySelector('.img img')
 
-const handleSubmit = (files, history, setUploading) => {
-  setUploading(true);
+dropbox?.addEventListener('dragover', preventDefault);
+dropbox?.addEventListener('dragenter', preventDefault);
+dropbox?.addEventListener('drop', (e) => {
+  e.preventDefault();
+  handleSubmit(e.dataTransfer?.files);
+});
+
+input?.addEventListener('change', (e) => {
+  handleSubmit(e.target?.files);
+});
+
+copy?.addEventListener('click', () => {
+  copyImgLink(image);
+});
+
+function handleSubmit(files) {
+  toggleLoader();
   if (files.length === 0) {
-    return setUploading(false);
+    return toggleLoader();
   }
   for (var i = 0; i < 1; i++) {
     const file = files[i];
     const imageType = /^image\//;
     if (!imageType.test(file.type)) {
-      setUploading(false);
+      toggleLoader();
+      Alert(`Invalid file: ${file.type}`, 'error');
       continue;
     }
     //Preview
-    const img = document.createElement("img");
-    const preview = document.querySelector(".dropbox");
-    preview.innerHTML = "";
+    const img = document.createElement('img');
+    const preview = document.querySelector('.dropbox');
+    preview.innerHTML = '';
     preview.appendChild(img);
     var reader = new FileReader();
     reader.onload = (function (aImg) {
@@ -30,156 +44,78 @@ const handleSubmit = (files, history, setUploading) => {
       };
     })(img);
     reader.readAsDataURL(file);
+
     //Upload
     const data = new FormData();
-    data.append("file", file, file.name);
-    fetch("/uploads", {
-      method: "POST",
+    data.append('file', file, file.name);
+    fetch('/uploads', {
+      method: 'POST',
       body: data,
     })
       .then((res) => res.json())
       .then((res) => {
-        setUploading(false);
-        if (res.success) history.push(`/success/${res?.img}`);
-        else Alert("Error ❌");
+        if (res.success) {
+          Alert('Uploaded Successfully!', 'success');
+          setTimeout(() => {
+            location.href = `/image/${res.filename}`;
+          }, 500);
+        } else Alert('Error', 'error');
+        toggleLoader();
       })
       .catch((error) => {
-        Alert("Error ❌");
-        setUploading(false);
+        Alert('Error', 'error');
+        toggleLoader();
       });
   }
-};
+}
 
-const preventDefault = (e) => {
+function preventDefault(e) {
   e.stopPropagation();
   e.preventDefault();
-};
+}
 
-const drop = (e, history, setUploading) => {
-  preventDefault(e);
-  handleSubmit(e.dataTransfer.files, history, setUploading);
-};
-
-const Alert = (msg) => {
-  const popup = document.createElement("span");
-  const container = document.querySelector(".container");
-  popup.classList.add("popup");
-  popup.innerText = msg;
-  container.appendChild(popup);
-  setTimeout(() => {
-    popup.remove();
-  }, 5000);
-};
-
-const copyLink = () => {
-  const copyText = document.querySelector(".link");
-  copyText.select();
-  copyText.setSelectionRange(0, 99999);
-  document.execCommand("copy");
-  Alert("copied ✅");
+const alertTheme = {
+  default: {
+    color: '#3461dc',
+    bg: '#dbeafe',
+    icon: '<svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>',
+  },
+  success: {
+    color: '#047857',
+    bg: '#d1fae5',
+    icon: '<svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>',
+  },
+  error: {
+    color: '#b91c1c',
+    bg: '#fee2e2',
+    icon: '<svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>',
+  },
 };
 
 /**
- * components
+ *
+ * @param {string} msg
+ * @param {'default'|'success'|'error'} type
  */
+function Alert(msg, type = 'default') {
+  const popup = document.createElement('span');
+  const container = document.querySelector('.container');
+  popup.classList.add('popup');
+  popup.innerHTML = `${alertTheme[type].icon} ${msg}`;
+  popup.style.setProperty('color', alertTheme[type].color);
+  popup.style.setProperty('background-color', alertTheme[type].bg);
+  container.appendChild(popup);
+  popup.onclick = () => popup.remove();
+  setTimeout(() => {
+    popup.remove();
+  }, 7000);
+}
 
-const Uploader = () => {
-  const [uploading, setUploading] = React.useState(false);
-  const history = useHistory();
-  return (
-    <>
-      {uploading && (
-        <div className="loaderContainer">
-          <div className="loader"></div>
-        </div>
-      )}
-      <h1>Upload your image</h1>
-      <h2>File should be Jpeg, Png,...</h2>
-      <div className="dropboxContainer">
-        <div
-          className="dropbox"
-          onDrop={(e) => drop(e, history, setUploading)}
-          onDragOver={preventDefault}
-          onDragEnter={preventDefault}
-        ></div>
-      </div>
-      <h2>Or</h2>
-      <input
-        type="file"
-        style={{ display: "none" }}
-        name="uploaderInput"
-        id="uploaderInput"
-        onChange={(e) => handleSubmit(e.target.files, history, setUploading)}
-      />
-      <div className="btnContainer">
-        <label htmlFor="uploaderInput" className="btn">
-          Choose a file
-        </label>
-      </div>
-    </>
-  );
-};
+function copyImgLink(img) {
+  navigator.clipboard.writeText(img.src)
+  Alert('copied', 'success');
+}
 
-const Success = () => {
-  let { img } = useParams();
-  const link = document.location.origin + "/images/uploads/" + img;
-  React.useEffect(() => {
-    Alert("⚠️ The image will be deleted in 2 minutes");
-  }, []);
-  return (
-    <div className="success">
-      <div className="successIcon">
-        <img src="https://img.icons8.com/color/48/000000/ok.png" />
-      </div>
-      <h1>Uploaded Successfully!</h1>
-      <div className="dropboxContainer">
-        <div className="dropbox img">
-          <img src={`/images/uploads/${img}`} />
-        </div>
-      </div>
-      <div className="btnContainer">
-        <div className="copy">
-          <input type="text" className="link" value={link} readOnly />
-          <button className="btn" onClick={copyLink}>
-            Copy Link
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Page404 = () => {
-  return (
-    <>
-      <h1 style={{ marginTop: "60px", fontSize: "28px" }}>Error - 404</h1>
-      <div style={{ padding: "20px 0", textAlign: "center" }}>
-        <Link to="/" className="btn">
-          Home
-        </Link>
-      </div>
-    </>
-  );
-};
-
-const App = () => {
-  return (
-    <Router>
-      <div className="uploaderContainer">
-        <Switch>
-          <Route exact path="/">
-            <Uploader />
-          </Route>
-          <Route exact path="/success/:img">
-            <Success />
-          </Route>
-          <Route>
-            <Page404 />
-          </Route>
-        </Switch>
-      </div>
-    </Router>
-  );
-};
-
-ReactDOM.render(<App />, document.querySelector("#root"));
+function toggleLoader() {
+  loaderContainer?.classList.toggle('hidden');
+}
